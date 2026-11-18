@@ -1,0 +1,35 @@
+name: Geordi
+description: Static security scanner and update monitor for Home Assistant extensions
+version: "0.4.0"
+slug: geordi
+arch:
+  - amd64
+  - aarch64
+homeassistant: "2026.10.0"
+init: false
+startup: application
+boot: auto
+ingress: true
+ingress_port: 8099
+panel_icon: mdi:shield-search
+panel_title: Geordi
+panel_admin: true
+# No /config, no Docker socket, no host network or exposed host port.
+# The HA permission allows Marketplace reads and fixed notification service calls.
+homeassistant_api: true
+options:
+  github_token: ""
+  monitor_enabled: true
+  poll_minutes: 5
+  daily_scan_limit: 12
+  advisory_rechecks: false
+  notify_service: ""
+schema:
+  github_token: password?
+  monitor_enabled: bool
+  poll_minutes: int(1,1440)
+  daily_scan_limit: int(1,24)
+  advisory_rechecks: bool
+  notify_service: "match(^[a-z0-9_]{0,100}$)?"
+backup_exclude:
+  - "cache/*"

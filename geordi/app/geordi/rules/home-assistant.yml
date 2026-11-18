@@ -1,0 +1,59 @@
+rules:
+  - id: geordi.python-env-egress
+    message: Sensitive environment data may flow into an outbound HTTP request
+    languages: [python]
+    severity: ERROR
+    metadata:
+      geordi_severity: high
+    mode: taint
+    pattern-sources:
+      - pattern-either:
+          - pattern: os.getenv(...)
+          - pattern: os.environ[...]
+          - pattern: os.environ.get(...)
+          - pattern: $HASS.auth.$FIELD
+    pattern-sinks:
+      - pattern-either:
+          - pattern: requests.post(..., data=$DATA, ...)
+          - pattern: requests.post(..., json=$DATA, ...)
+          - pattern: httpx.post(..., data=$DATA, ...)
+          - pattern: httpx.post(..., json=$DATA, ...)
+          - pattern: $SESSION.post(..., data=$DATA, ...)
+          - pattern: $SESSION.post(..., json=$DATA, ...)
+  - id: geordi.python-eval
+    message: Dynamic Python evaluation or execution
+    languages: [python]
+    severity: WARNING
+    metadata:
+      geordi_severity: high
+    patterns:
+      - pattern-either:
+          - pattern: eval(...)
+          - pattern: exec(...)
+  - id: geordi.python-shell
+    message: Subprocess invocation uses a shell
+    languages: [python]
+    severity: WARNING
+    metadata:
+      geordi_severity: high
+    patterns:
+      - pattern-either:
+          - pattern: subprocess.run(..., shell=True, ...)
+          - pattern: subprocess.Popen(..., shell=True, ...)
+          - pattern: subprocess.call(..., shell=True, ...)
+  - id: geordi.javascript-dynamic-execution
+    message: JavaScript dynamic code execution
+    languages: [javascript, typescript]
+    severity: WARNING
+    metadata:
+      geordi_severity: high
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)
+  - id: geordi.javascript-external-script
+    message: JavaScript loads a remote script element
+    languages: [javascript, typescript]
+    severity: WARNING
+    metadata:
+      geordi_severity: medium
+    pattern: document.createElement('script')
